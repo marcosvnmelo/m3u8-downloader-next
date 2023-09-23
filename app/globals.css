@@ -40,6 +40,27 @@
   * {
     @apply border-border;
   }
+
+  *::-webkit-scrollbar {
+    @apply w-2;
+  }
+
+  *::-webkit-scrollbar-track {
+    @apply bg-background;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    @apply bg-primary rounded;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    @apply bg-primary/90;
+  }
+
+  *::-webkit-scrollbar-thumb:active {
+    @apply bg-primary/80;
+  }
+
   body {
     @apply bg-background text-foreground;
   }
