@@ -3,6 +3,7 @@ import './globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { ReactNode } from 'react';
+import IconGithub from '~icons/radix-icons/github-logo';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -26,8 +27,13 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 
         <footer className='border-t p-3'>
           Developed by{' '}
-          <a href='https://www.github.com/marcosvnmelo' target='_blank'>
+          <a
+            href='https://www.github.com/marcosvnmelo'
+            target='_blank'
+            className='underline'
+          >
             Marcos Vinícius
+            <IconGithub className='ml-1 inline-block h-5 w-5' />
           </a>
         </footer>
       </body>

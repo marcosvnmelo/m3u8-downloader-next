@@ -31,10 +31,13 @@
     "tailwindcss": "3.3.3",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "5.2.2",
+    "unplugin-icons": "^0.17.0",
     "zod": "^3.22.2"
   },
   "devDependencies": {
-    "@iconify/react": "^4.1.1",
+    "@iconify/json": "^2.2.119",
+    "@svgr/core": "^8.1.0",
+    "@svgr/plugin-jsx": "^8.1.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",
     "prettier": "^3.0.3",

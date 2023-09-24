@@ -13,16 +13,12 @@ import {
   type FormSchemaOutput,
   formSchema,
 } from './api/download/types';
-import { Icon } from '@iconify/react';
+import IconDownload from '~icons/radix-icons/download';
+import IconUpdate from '~icons/radix-icons/update';
+import IconCheckCircled from '~icons/radix-icons/check-circled';
+import IconCrossCircled from '~icons/radix-icons/cross-circled';
 
 type Status = 'idle' | 'loading' | 'success' | 'error';
-
-const iconStatus: Record<Status, string> = {
-  idle: 'radix-icons:download',
-  loading: 'radix-icons:update',
-  success: 'radix-icons:check-circled',
-  error: 'radix-icons:cross-circled',
-};
 
 export default function Home() {
   //* hooks
@@ -231,10 +227,12 @@ export default function Home() {
       <div className='mt-4 flex justify-center'>
         <Button type='submit' disabled={buttonStatus === 'loading'}>
           Download
-          <Icon
-            icon={iconStatus[buttonStatus]}
-            className={cn('ml-2', buttonStatus === 'loading' && 'animate-spin')}
-          />
+          {buttonStatus === 'idle' && <IconDownload className='ml-2' />}
+          {buttonStatus === 'loading' && (
+            <IconUpdate className='ml-2 animate-spin' />
+          )}
+          {buttonStatus === 'success' && <IconCheckCircled className='ml-2' />}
+          {buttonStatus === 'error' && <IconCrossCircled className='ml-2' />}
         </Button>
       </div>
     </form>
