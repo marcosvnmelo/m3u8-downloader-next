@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useForm } from 'react-hook-form';
@@ -13,6 +13,16 @@ import {
   type FormSchemaOutput,
   formSchema,
 } from './api/download/types';
+import { Icon } from '@iconify/react';
+
+type Status = 'idle' | 'loading' | 'success' | 'error';
+
+const iconStatus: Record<Status, string> = {
+  idle: 'radix-icons:download',
+  loading: 'radix-icons:update',
+  success: 'radix-icons:check-circled',
+  error: 'radix-icons:cross-circled',
+};
 
 export default function Home() {
   //* hooks
@@ -30,6 +40,9 @@ export default function Home() {
       headers: '',
     },
   });
+
+  //* state
+  const [buttonStatus, setButtonStatus] = useState<Status>('idle');
 
   //* computed
   const playlistFile = watch('playlistFile');
@@ -56,39 +69,84 @@ export default function Home() {
   }, [headers]);
 
   //* handlers
-  const onSubmit = useCallback((data: FormSchemaOutput) => {
-    fetch('/api/download', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    }).then(res => {
-      if (!res.ok) throw new Error(res.statusText);
+  const handleSetButtonStatus = useCallback((status: Status) => {
+    setButtonStatus(status);
 
-      const fileBits: Uint8Array[] = [];
-
-      res.body?.pipeTo(
-        new WritableStream({
-          write(chunk) {
-            fileBits.push(chunk);
-          },
-          close() {
-            const file = new File(fileBits, 'video.mp4', {
-              type: 'video/mp4',
-            });
-
-            const url = window.URL.createObjectURL(file);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'video.mp4';
-            a.click();
-
-            window.URL.revokeObjectURL(url);
-          },
-        }),
-      );
-    });
+    if (status === 'success' || status === 'error')
+      setTimeout(() => {
+        setButtonStatus('idle');
+      }, 3000);
   }, []);
 
+  const downloadVideo = useCallback(
+    (data: FormSchemaOutput) => {
+      fetch('/api/download', {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }).then(res => {
+        if (!res.ok) throw new Error(res.statusText);
+
+        if (res.status !== 200) throw new Error('Something went wrong');
+
+        const fileBits: Uint8Array[] = [];
+
+        let hasError = false;
+
+        res.body
+          ?.pipeTo(
+            new WritableStream<Uint8Array>({
+              write(chunk) {
+                if (!chunk) hasError = true;
+
+                fileBits.push(chunk);
+              },
+              close() {
+                if (hasError) {
+                  handleSetButtonStatus('error');
+                  return;
+                }
+
+                const file = new File(fileBits, 'video.mp4', {
+                  type: 'video/mp4',
+                });
+
+                const url = window.URL.createObjectURL(file);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'video.mp4';
+                a.click();
+
+                window.URL.revokeObjectURL(url);
+
+                handleSetButtonStatus('success');
+              },
+            }),
+          )
+          .catch(() => {
+            handleSetButtonStatus('error');
+          });
+      });
+    },
+    [handleSetButtonStatus],
+  );
+
+  const onSubmit = useCallback(
+    (data: FormSchemaOutput) => {
+      setButtonStatus('loading');
+
+      downloadVideo(data);
+    },
+    [downloadVideo],
+  );
+
   //* effects
+  useEffect(() => {
+    setButtonStatus('idle');
+  }, [playlistFile, headers]);
+
   useEffect(() => {
     setValue('videoUrls', videoUrls, {
       shouldValidate: dirtyFields.playlistFile,
@@ -171,7 +229,13 @@ export default function Home() {
       </div>
 
       <div className='mt-4 flex justify-center'>
-        <Button type='submit'>Download</Button>
+        <Button type='submit' disabled={buttonStatus === 'loading'}>
+          Download
+          <Icon
+            icon={iconStatus[buttonStatus]}
+            className={cn('ml-2', buttonStatus === 'loading' && 'animate-spin')}
+          />
+        </Button>
       </div>
     </form>
   );

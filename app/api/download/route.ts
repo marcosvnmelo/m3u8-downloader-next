@@ -30,21 +30,17 @@ async function downloadAllVideos(
   urls: string[],
   headers: Record<string, string>,
 ) {
-  let index = 0;
-
   return new Response(
     new ReadableStream({
       async start(controller) {
-        while (index < urls.length) {
-          const response = await downloadVideo(urls[index], headers);
+        for await (const url of urls) {
+          const response = await downloadVideo(url, headers);
 
           if (!response.ok) {
-            throw new Error(`Failed to download video at ${urls[index]}`);
+            controller.error(`Failed to download video at ${url}`);
           }
 
           controller.enqueue(await response.arrayBuffer());
-
-          index += 1;
         }
 
         controller.close();
