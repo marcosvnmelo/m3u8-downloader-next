@@ -1,3 +1,7 @@
+# M3U8 Downloader
+
+![image](https://github.com/marcosvnmelo/m3u8-downloader-next/assets/28654399/8478dab3-5965-47ad-8518-6403ef5dd8bc)
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
