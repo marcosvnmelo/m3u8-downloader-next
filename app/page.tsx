@@ -28,8 +28,7 @@ export default function Home() {
     register,
     watch,
     setValue,
-  } = useForm<FormSchemaInput>({
-    // @ts-expect-error zod new version is not compatible with react-hook-form
+  } = useForm<FormSchemaInput, any, FormSchemaOutput>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       playlistFile: '',
